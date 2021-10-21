@@ -1,0 +1,55 @@
+version: "3"
+
+networks:
+  cassandra:
+
+services:
+
+  cassandra1:
+    image: cassandra:4.0.1
+    container_name: cas1
+    hostname: cassandra1
+    networks:
+    - cassandra
+    volumes:
+      - "./cass1:/var/lib/cassandra"
+      - "./config_cass1:/etc/cassandra"
+    ports:
+    - 9042:9042
+    environment:
+      - "CASSANDRA_SEEDS=cassandra1"
+      - "CASSANDRA_CLUSTER_NAME=Test Cluster"
+# #      needed for setting up custom cluster name
+      - "CASSANDRA_DC=DC1"
+      # - "CASSANDRA_RACK=rack1"
+      # - "CASSANDRA_LISTEN_ADDRESS=172.22.0.2"
+       # - "CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch"
+      - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+    # depends_on:
+    #   - cassandra-seed
+#    restart: always
+
+  cassandra2:
+    image: cassandra:4.0.1
+    container_name: cas2
+    hostname: cassandra2
+    networks:
+    - cassandra
+    volumes:
+      - "./cass2:/var/lib/cassandra"
+      - "./config_cass2:/etc/cassandra"
+    ports:
+    - 9043:9042
+    environment:
+      - "CASSANDRA_SEEDS=cassandra1"
+      - "CASSANDRA_CLUSTER_NAME=Test Cluster"
+#     needed for setting up custom cluster name
+      - "CASSANDRA_DC=DC1"
+      # - "CASSANDRA_RACK=rack1"
+      # - "CASSANDRA_LISTEN_ADDRESS=172.22.0.3"
+      # - "CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch"
+      - "CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch"
+    # cassandra nodes need to start after each other, else it might causes problems (seed nodes first)
+    depends_on:
+      - cassandra1
+#    restart: always
